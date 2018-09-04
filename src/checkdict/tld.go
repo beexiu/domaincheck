@@ -42,6 +42,7 @@ func GetTLD(tld string, cfgPath string) (TLD, error) {
 		v.Patterns.NotRegistered = strings.Trim(v.Patterns.NotRegistered, "/")
 		if v.Tld == tld {
 			TldItem = v
+			break
 		}
 
 	}
