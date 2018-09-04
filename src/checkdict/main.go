@@ -30,6 +30,10 @@ func main() {
 
 	tldinfo, err := GetTLD(tlds, "./conf/tld.org.json")
 	assert(err)
+	if tldinfo.WhoisServer == `` || tldinfo.WhoisServer == "null" {
+		fmt.Printf("\"%s\" whois server is empty.\n", tlds)
+		os.Exit(1)
+	}
 
 	resultFile, _ := os.Create("./data/" + tldinfo.Tld + "_" + time.Now().Format("20060102150405") + "_result.txt")
 
