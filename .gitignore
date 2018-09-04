@@ -1,0 +1,10 @@
+*.swp
+.vscode/
+bin/*
+code.aliyun.com
+data/*
+deploy/*
+github.com
+golang.org
+logs/*
+pkg/*
