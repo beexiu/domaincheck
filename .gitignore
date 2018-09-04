@@ -2,10 +2,10 @@
 .vscode/
 bin/*
 code.aliyun.com
+conf/*
 data/*
 deploy/*
 github.com
 golang.org
 logs/*
 pkg/*
-conf/*

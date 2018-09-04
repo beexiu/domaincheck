@@ -5,4 +5,4 @@ cd $ROOTDIR
 
 sh $ROOTDIR/build.go checkdict
 
-$ROOTDIR/bin/checkdict
+$ROOTDIR/bin/checkdict com conf/testds.txt

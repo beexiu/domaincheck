@@ -10,9 +10,23 @@ import (
 	"time"
 )
 
+func printHelp(err int) {
+	if err > 0 {
+		fmt.Printf("Parameter error.\n\n")
+	}
+	fmt.Printf("Usage: checkdict tld file\n")
+	fmt.Printf("    tld     Domains as com, net\n")
+	fmt.Printf("    file    Dictionary file\n")
+}
+
 func main() {
-	tlds := "com"
-	dict := "./conf/testds.txt"
+	if len(os.Args) != 3 {
+		printHelp(1)
+		os.Exit(1)
+	}
+
+	tlds := os.Args[1]
+	dict := os.Args[2]
 
 	tldinfo, err := GetTLD(tlds, "./conf/tld.org.json")
 	assert(err)
