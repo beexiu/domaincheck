@@ -5,4 +5,5 @@ cd $ROOTDIR
 
 sh $ROOTDIR/build.go checkdict
 
-$ROOTDIR/bin/checkdict com conf/testds.txt
+$ROOTDIR/bin/checkdict -tld=com -dic=conf/testds.txt -max=30
+#$ROOTDIR/bin/checkdict -tld=net -dic=conf/custom.txt -max=30

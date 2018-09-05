@@ -2,11 +2,13 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"net"
 	"os"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -15,38 +17,42 @@ func printHelp(err int) {
 		fmt.Printf("Parameter error.\n\n")
 	}
 	fmt.Printf("Usage: checkdict tld file\n")
-	fmt.Printf("    tld     Domains as com, net\n")
-	fmt.Printf("    file    Dictionary file\n")
+	fmt.Printf("    -tld    Domains as com, net\n")
+	fmt.Printf("    -dic    Dictionary file\n")
+	fmt.Printf("    -max    Max number\n")
 }
 
 func main() {
-	if len(os.Args) != 3 {
-		printHelp(1)
-		os.Exit(1)
-	}
+	tlds := flag.String("tld", "com", "TLD")
+	dict := flag.String("dic", "conf/testds.txt", "dictionary")
+	max := flag.Int("max", 9999999, "max number")
+	flag.Parse()
 
-	tlds := os.Args[1]
-	dict := os.Args[2]
-
-	tldinfo, err := GetTLD(tlds, "./conf/tld.org.json")
+	tldinfo, err := GetTLD(*tlds, "./conf/tld.org.json")
 	assert(err)
 	if tldinfo.WhoisServer == `` || tldinfo.WhoisServer == "null" {
-		fmt.Printf("\"%s\" whois server is empty.\n", tlds)
+		fmt.Printf("\"%s\" whois server is empty.\n", *tlds)
 		os.Exit(1)
 	}
 
 	resultFile, _ := os.Create("./data/" + tldinfo.Tld + "_" + time.Now().Format("20060102150405") + "_result.txt")
 
-	fileDict, err := os.Open(dict)
+	fileDict, err := os.Open(*dict)
 	defer fileDict.Close()
 
 	// 每200毫秒新增运行一个线程，查询一次
 	waitTime := 200
 
+	var count int32
+	count = 0
 	var waitGroup sync.WaitGroup
 	scanner := bufio.NewScanner(fileDict)
 	for scanner.Scan() {
 		line := scanner.Text()
+
+		if count > int32(*max) {
+			break
+		}
 
 		waitGroup.Add(1)
 
@@ -56,6 +62,7 @@ func main() {
 			dm := query(line, tldinfo)
 			if dm != "" {
 				resultFile.WriteString(dm + "\n")
+				atomic.AddInt32(&count, 1)
 			}
 		}(line)
 
