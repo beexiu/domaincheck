@@ -407,7 +407,7 @@
     "description": "People's Republic of China",
     "whoisServer": "cn.whois-servers.net",
     "patterns": {
-        "notRegistered": "/no matching record\\./",
+        "notRegistered": "/no matching record/",
         "waitPeriod": "/Queried interval is too short/"
     },
     "waitPeriod": 1
