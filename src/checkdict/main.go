@@ -7,6 +7,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -40,28 +41,41 @@ func main() {
 	fileDict, err := os.Open(dict)
 	defer fileDict.Close()
 
+	// 每200毫秒新增运行一个线程，查询一次
+	waitTime := 200
+
+	var waitGroup sync.WaitGroup
 	scanner := bufio.NewScanner(fileDict)
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		// // 不用多线程，会被Block的
-		dm := query(line, tldinfo)
-		if dm != "" {
-			resultFile.WriteString(dm + "\n")
-		}
+		waitGroup.Add(1)
 
-		time.Sleep(1000 * time.Millisecond)
+		go func(line string) {
+			defer waitGroup.Done()
+
+			dm := query(line, tldinfo)
+			if dm != "" {
+				resultFile.WriteString(dm + "\n")
+			}
+		}(line)
+
+		time.Sleep(time.Millisecond * time.Duration(waitTime))
+
+		//debug
+		//break
 	}
 
 	if err := scanner.Err(); err != nil {
 		assert(err)
 	}
+	waitGroup.Wait()
 
 	resultFile.Close()
 }
 
 func query(line string, tldinfo TLD) string {
-	conn, err := net.DialTimeout("tcp", tldinfo.WhoisServer+":43", 30*time.Second)
+	conn, err := net.DialTimeout("tcp", tldinfo.WhoisServer+":43", 10*time.Second)
 	if err != nil {
 		fmt.Printf("connect error :%s  AAA\n", err.Error())
 		return ""
@@ -76,11 +90,15 @@ func query(line string, tldinfo TLD) string {
 	line = strings.Trim(line, "\n")
 	domain := line + "." + tldinfo.Tld
 
-	fmt.Fprintf(conn, domain+"\r\n")
+	_, err = fmt.Fprintf(conn, domain+"\r\n")
+	assert(err)
 
 	time.Sleep(time.Second)
 	var buf = make([]byte, 65536)
 	n, err := conn.Read(buf)
+
+	//debug
+	//fmt.Printf("get data: %s\n", string(buf[0:n-1]))
 
 	if err == nil {
 		newstr := string(buf[0 : n-1])
@@ -90,7 +108,7 @@ func query(line string, tldinfo TLD) string {
 		if re == nil {
 			fmt.Printf(domain + "  has been registed\n")
 		} else {
-			fmt.Printf(domain + " can be regist!!can be regist!!can be regist!! \n")
+			fmt.Printf(">>> " + domain + " can be regist!!can be regist!!can be regist!! \n")
 			return domain
 		}
 	} else {
