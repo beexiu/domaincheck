@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -103,9 +102,9 @@ func query(line string, tldinfo TLD) string {
 	if err == nil {
 		newstr := string(buf[0 : n-1])
 
-		reg := regexp.MustCompile(tldinfo.Patterns.NotRegistered)
-		re := reg.FindAllString(newstr, -1)
-		if re == nil {
+		newstr = strings.ToUpper(newstr)
+		substr := strings.ToUpper(tldinfo.Patterns.NotRegistered)
+		if !strings.Contains(newstr, substr) {
 			fmt.Printf(domain + "  has been registed\n")
 		} else {
 			fmt.Printf(">>> " + domain + " can be regist!!can be regist!!can be regist!! \n")
