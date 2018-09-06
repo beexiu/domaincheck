@@ -26,6 +26,7 @@ func main() {
 	tlds := flag.String("tld", "com", "TLD")
 	dict := flag.String("dic", "conf/testds.txt", "dictionary")
 	max := flag.Int("max", 9999999, "max number")
+	wait := flag.Int("wait", 200, "wait time")
 	flag.Parse()
 
 	tldinfo, err := GetTLD(*tlds, "./conf/tld.org.json")
@@ -40,8 +41,8 @@ func main() {
 	fileDict, err := os.Open(*dict)
 	defer fileDict.Close()
 
-	// 每200毫秒新增运行一个线程，查询一次
-	waitTime := 200
+	// 默认每200毫秒开一个线程，查询一次
+	waitTime := *wait
 
 	var count int32
 	count = 0
