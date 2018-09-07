@@ -9,3 +9,4 @@ golang.org
 logs/*
 pkg/*
 tmp/*
+x.sh
