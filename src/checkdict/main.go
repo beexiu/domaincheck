@@ -44,6 +44,8 @@ func main() {
 	// 默认每200毫秒开一个线程，查询一次
 	waitTime := *wait
 
+	tStart := time.Now()
+
 	var count int32
 	count = 0
 	var waitGroup sync.WaitGroup
@@ -52,7 +54,12 @@ func main() {
 		line := scanner.Text()
 
 		if count > int32(*max) {
+			fmt.Printf("Max number found.\n")
 			break
+		}
+
+		if strings.HasPrefix(line, "#") {
+			continue
 		}
 
 		waitGroup.Add(1)
@@ -77,6 +84,9 @@ func main() {
 		assert(err)
 	}
 	waitGroup.Wait()
+
+	elapsed := time.Since(tStart)
+	fmt.Printf("\nElapsed time: %fs\n", elapsed.Seconds())
 
 	resultFile.Close()
 }
