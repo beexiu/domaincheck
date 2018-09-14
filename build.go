@@ -268,7 +268,7 @@ func run(args ...string) (err error) {
 		if CMD == "win" {
 			cmd.Env = append(cmd.Env, "GOOS=windows")
 		} else if CMD == "arm" {
-			cmd.Env = append(cmd.Env, "GOARCH=arm", "GOARM=7")
+			cmd.Env = append(cmd.Env, "GOOS=linux", "GOARCH=arm", "GOARM=7")
 		}
 		cmd.Env = append(cmd.Env, bc.EXTRA_ENVIRON...)
 	}
